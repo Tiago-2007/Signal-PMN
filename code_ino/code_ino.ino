@@ -1,94 +1,38 @@
-/******************************************************************
-*Programador..............: (c)Tiago Machado
-*Data.....................: 13/12/2024
-*Observações..............: Semáforo
-*								
-******************************************************************/
+/*
+	Programador..............: (c) Tiago Machado
+    Data.....................: 08/01/2025
+    Observações..............: Um sensor de  movimentos
+*/
 
-  //Constantes
   const int BAUD_RATE = 9600;
 
-  const int PINO_LED_VERMELHO = 13;
-  const int PINO_LED_AMARELO = 11;
-  const int PINO_LED_VERDE = 9;
-
-  const int ESTADO_INICIALIZACAO_SEMAFORO = 0;
-  const int ESTADO_TESTE_SEMAFORO = 1;
-  const int ESTADO_ACENDER_VERMELHO = 2;
-  const int ESTADO_ACENDER_AMARELO = 3;
-  const int ESTADO_ACENDER_VERDE = 4;
-
-  //Variáveis
-  byte estadoAtual;
-  byte contador;
-
-void setup(void)	{
-  Serial.begin(BAUD_RATE);
+  const byte TRIGGER_PIN = 11;
+  const byte ECHO_PIN = 12;
   
-  estadoAtual = ESTADO_INICIALIZACAO_SEMAFORO;
-  
-  Serial.println("Incialização dos pinos.......");
-  
-  pinMode(PINO_LED_VERMELHO, OUTPUT);
-  pinMode(PINO_LED_AMARELO, OUTPUT);
-  pinMode(PINO_LED_VERDE, OUTPUT);
+  const int MEASUREMENT_CYCLE = 6000;
+  const int PULSE_TRIGGER_TIME = 10;
 
-	contador = 1;
+  float highLevelTime, distance;
+
+  void setup(void)     {
+	  Serial.begin(BAUD_RATE);
+
+    pinMode(TRIGGER_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
 }
 
 void loop(void) {
-  switch(estadoAtual)	{
-    case ESTADO_INICIALIZACAO_SEMAFORO: {
-      	digitalWrite(PINO_LED_VERMELHO, LOW);
-      	digitalWrite(PINO_LED_AMARELO, LOW);
-      	digitalWrite(PINO_LED_VERDE, LOW);
-
-		delay(2000);
-    	
-    	estadoAtual = ESTADO_TESTE_SEMAFORO;
-    	break;
- 	}
-  	case ESTADO_TESTE_SEMAFORO: {
-      if(contador++ <= 3) {
-      	digitalWrite(PINO_LED_VERMELHO, HIGH);
-      	digitalWrite(PINO_LED_AMARELO, HIGH);
-      	digitalWrite(PINO_LED_VERDE, HIGH);
-      
-      delay(500);
-      
-      digitalWrite(PINO_LED_VERMELHO, LOW);
-      digitalWrite(PINO_LED_AMARELO, LOW);
-      digitalWrite(PINO_LED_VERDE, LOW);
-      
-      delay(500);             
-                   
-      }
-      else	{
-        estadoAtual = ESTADO_ACENDER_VERMELHO;
-      }
-  	  break;
-	}
-	case ESTADO_ACENDER_VERMELHO: {
-      digitalWrite(PINO_LED_VERMELHO, LOW);
-      delay(5000);
-      estadoAtual = ESTADO_ACENDER_AMARELO;
-      break;
-    }
-    case ESTADO_ACENDER_AMARELO: {
-      digitalWrite(PINO_LED_VERMELHO, LOW);
-      digitalWrite(PINO_LED_AMARELO, HIGH);
-      delay(3000);
-      estadoAtual = ESTADO_ACENDER_VERDE;
-      break;
-    }
-    case ESTADO_ACENDER_VERDE: {
-      digitalWrite(PINO_LED_VERMELHO, LOW);
-      digitalWrite(PINO_LED_AMARELO, HIGH);
-      digitalWrite(PINO_LED_VERDE, HIGH);
-      delay(10000);
-      digitalWrite(PINO_LED_VERDE, LOW);
-      estadoAtual = ESTADO_ACENDER_VERMELHO;
-      break;
-    }
-  }
-}		
+	Serial.println("A ler o sonar.....");
+  
+  digitalWrite(TRIGGER_PIN, LOW);
+  delayMicroseconds(MEASUREMENT_CYCLE);
+  digitalWrite(TRIGGER_PIN, HIGH);
+  delayMicroseconds(PULSE_TRIGGER_TIME);
+  digitalWrite(TRIGGER_PIN, LOW);
+  
+  highLevelTime = pulseIn(ECHO_PIN, HIGH);
+  Serial.println("High Level Time: " + String(highLevelTime)); 
+  distance =	((highLevelTime * 0.0340) / 2);
+  Serial.println("Distance: " + String(distance)); 	
+}
+               
