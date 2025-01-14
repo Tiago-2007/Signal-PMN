@@ -1,38 +1,29 @@
-/*
-	Programador..............: (c) Tiago Machado
-    Data.....................: 08/01/2025
-    Observações..............: Um sensor de  movimentos
-*/
+/***********************************************************
+	Programador..........: (c) Tiago Machado 
+    Data.................: 18/12/2024 
+    Observações..........: Estudo do sinal PMN
+************************************************************/
 
-  const int BAUD_RATE = 9600;
+ const byte BAUD_RATE = 9600;
+  const byte PINO_POTENCIOMETRO = A0;
+  const byte PINO_LED = 6;
 
-  const byte TRIGGER_PIN = 11;
-  const byte ECHO_PIN = 12;
+  int conversao;
+
+  void setup() {
+    Serial.begin(BAUD_RATE);
   
-  const int MEASUREMENT_CYCLE = 6000;
-  const int PULSE_TRIGGER_TIME = 10;
-
-  float highLevelTime, distance;
-
-  void setup(void)     {
-	  Serial.begin(BAUD_RATE);
-
-    pinMode(TRIGGER_PIN, OUTPUT);
-    pinMode(ECHO_PIN, INPUT);
+    pinMode(PINO_POTENCIOMETRO, INPUT);
+    pinMode(PINO_LED, OUTPUT);	
 }
 
-void loop(void) {
-	Serial.println("A ler o sonar.....");
+  void loop() {
+    int leitura = analogRead(PINO_POTENCIOMETRO);
+    Serial.println(leitura);
+
+    conversao = map(leitura, 0, 1023, 0, 255);
   
-  digitalWrite(TRIGGER_PIN, LOW);
-  delayMicroseconds(MEASUREMENT_CYCLE);
-  digitalWrite(TRIGGER_PIN, HIGH);
-  delayMicroseconds(PULSE_TRIGGER_TIME);
-  digitalWrite(TRIGGER_PIN, LOW);
-  
-  highLevelTime = pulseIn(ECHO_PIN, HIGH);
-  Serial.println("High Level Time: " + String(highLevelTime)); 
-  distance =	((highLevelTime * 0.0340) / 2);
-  Serial.println("Distance: " + String(distance)); 	
-}
-               
+    analogWrite(PINO_LED, conversao);
+   
+ delay(10);                 
+ }
